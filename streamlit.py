@@ -42,6 +42,12 @@ def convert_pace_to_hours_for_bike_run(pace, distance_km):
         st.error("Por favor, introduce el ritmo en formato correcto (min:seg).")
         return None
 
+# Función para convertir tiempo en horas a horas y minutos
+def convert_hours_to_hm(hours):
+    hrs = int(hours)  # Extraer la parte entera (horas)
+    mins = round((hours - hrs) * 60)  # Convertir la parte decimal a minutos
+    return hrs, mins
+
 # Cálculos de tiempo
 if st.button("Calcular tiempo total"):
     swim_time = convert_pace_to_hours(swim_pace, swim_distance * 1000)  # Convertir distancia a metros
@@ -56,11 +62,19 @@ if st.button("Calcular tiempo total"):
         # Sumar todos los tiempos en horas
         total_time = swim_time + bike_time + run_time + t1_time_in_hours + t2_time_in_hours
 
+        # Convertir el tiempo total a horas y minutos
+        total_hours, total_minutes = convert_hours_to_hm(total_time)
+        swim_hours, swim_minutes = convert_hours_to_hm(swim_time)
+        bike_hours, bike_minutes = convert_hours_to_hm(bike_time)
+        run_hours, run_minutes = convert_hours_to_hm(run_time)
+        t1_hours, t1_minutes = convert_hours_to_hm(t1_time_in_hours)
+        t2_hours, t2_minutes = convert_hours_to_hm(t2_time_in_hours)
+
         # Mostrar resultados
         st.header("Resultados")
-        st.write(f"Tiempo natación: {swim_time:.2f} horas")
-        st.write(f"Tiempo ciclismo: {bike_time:.2f} horas")
-        st.write(f"Tiempo carrera: {run_time:.2f} horas")
-        st.write(f"Tiempo de transición T1: {t1_time_in_hours:.2f} horas")
-        st.write(f"Tiempo de transición T2: {t2_time_in_hours:.2f} horas")
-        st.write(f"*Tiempo total estimado: {total_time:.2f} horas*")
+        st.write(f"Tiempo natación: {swim_hours} horas {swim_minutes} minutos")
+        st.write(f"Tiempo ciclismo: {bike_hours} horas {bike_minutes} minutos")
+        st.write(f"Tiempo carrera: {run_hours} horas {run_minutes} minutos")
+        st.write(f"Tiempo de transición T1: {t1_hours} horas {t1_minutes} minutos")
+        st.write(f"Tiempo de transición T2: {t2_hours} horas {t2_minutes} minutos")
+        st.write(f"*Tiempo total estimado: {total_hours} horas {total_minutes} minutos*")
