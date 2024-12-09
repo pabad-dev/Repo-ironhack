@@ -9,8 +9,8 @@ st.write("Introduce tus datos para estimar el tiempo de cada segmento y el total
 # Inputs del usuario
 st.header("Datos de rendimiento")
 swim_pace = st.text_input("Ritmo natación (min:seg / 100m):", value="2:00")  # Ritmo natación
-bike_speed = st.number_input("Velocidad ciclismo (km/h):", min_value=10.0, max_value=50.0, step=0.1)
-run_speed = st.number_input("Velocidad carrera (min/km):", min_value=3.0, max_value=15.0, step=0.1)
+bike_pace = st.text_input("Ritmo ciclismo (min/km):", value="4:00")  # Ritmo ciclismo
+run_pace = st.text_input("Ritmo carrera (min/km):", value="5:00")  # Ritmo carrera
 
 t1_time = st.number_input("Tiempo de transición T1 (min):", min_value=0.0, max_value=30.0, step=0.1)
 t2_time = st.number_input("Tiempo de transición T2 (min):", min_value=0.0, max_value=30.0, step=0.1)
@@ -31,13 +31,25 @@ def convert_pace_to_hours(pace, distance_m):
         st.error("Por favor, introduce el ritmo en formato correcto (min:seg).")
         return None
 
+# Función para convertir el ritmo ciclismo/carrera (min/km) a tiempo en horas
+def convert_pace_to_hours_for_bike_run(pace, distance_km):
+    try:
+        minutes, seconds = map(int, pace.split(":"))
+        total_seconds_per_km = minutes * 60 + seconds
+        total_time_seconds = distance_km * total_seconds_per_km
+        return total_time_seconds / 3600  # Convertir segundos a horas
+    except:
+        st.error("Por favor, introduce el ritmo en formato correcto (min:seg).")
+        return None
+
 # Cálculos de tiempo
 if st.button("Calcular tiempo total"):
     swim_time = convert_pace_to_hours(swim_pace, swim_distance * 1000)  # Convertir distancia a metros
     if swim_time is not None:
-        bike_time = bike_distance / bike_speed  # en horas
-        run_time = (run_distance * run_speed) / 60  # en horas
-        total_time = swim_time + bike_time + run_time + t1_time / 60 + t2_time / 60
+        bike_time = convert_pace_to_hours_for_bike_run(bike_pace, bike_distance)  # Cálculo de tiempo ciclismo
+        run_time = convert_pace_to_hours_for_bike_run(run_pace, run_distance)  # Cálculo de tiempo carrera
+
+        total_time = swim_time + bike_time + run_time + t1_time / 60 + t2_time / 60  # Convertir transiciones a horas
 
         # Mostrar resultados
         st.header("Resultados")
