@@ -49,11 +49,18 @@ if st.button("Calcular tiempo total"):
         bike_time = convert_pace_to_hours_for_bike_run(bike_pace, bike_distance)  # Cálculo de tiempo ciclismo
         run_time = convert_pace_to_hours_for_bike_run(run_pace, run_distance)  # Cálculo de tiempo carrera
 
-        total_time = swim_time + bike_time + run_time + t1_time / 60 + t2_time / 60  # Convertir transiciones a horas
+        # Convertir transiciones a horas
+        t1_time_in_hours = t1_time / 60
+        t2_time_in_hours = t2_time / 60
+
+        # Sumar todos los tiempos en horas
+        total_time = swim_time + bike_time + run_time + t1_time_in_hours + t2_time_in_hours
 
         # Mostrar resultados
         st.header("Resultados")
         st.write(f"Tiempo natación: {swim_time:.2f} horas")
         st.write(f"Tiempo ciclismo: {bike_time:.2f} horas")
         st.write(f"Tiempo carrera: {run_time:.2f} horas")
+        st.write(f"Tiempo de transición T1: {t1_time_in_hours:.2f} horas")
+        st.write(f"Tiempo de transición T2: {t2_time_in_hours:.2f} horas")
         st.write(f"*Tiempo total estimado: {total_time:.2f} horas*")
