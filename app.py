@@ -1,60 +1,62 @@
 import streamlit as st
-import pickle
 import pandas as pd
+import pickle
 
-# Función para cargar modelos
-def load_model(file_name):
+# Cargar los modelos
+def load_model(model_path):
     try:
-        with open(file_name, 'rb') as file:
+        with open(model_path, 'rb') as file:
             return pickle.load(file)
     except Exception as e:
-        st.error(f"Error al cargar el modelo {file_name}: {e}")
-        raise
+        st.error(f"Error al cargar el modelo {model_path}: {e}")
+        return None
+
+# Cargar el archivo CSV y obtener valores únicos
+@st.cache_data
+def load_event_locations(csv_path):
+    try:
+        df = pd.read_csv(csv_path)
+        return df['event location'].dropna().unique()
+    except Exception as e:
+        st.error(f"Error al cargar el archivo {csv_path}: {e}")
+        return []
+
+# Predicción basada en modelos
+def predict_time(model, age, event):
+    if model is None:
+        return "Modelo no disponible"
+    try:
+        # Crear un DataFrame con las entradas
+        input_data = pd.DataFrame({"age": [age], "event": [event]})
+        # Realizar predicción
+        prediction = model.predict(input_data)
+        return round(prediction[0], 2)
+    except Exception as e:
+        st.error(f"Error al realizar la predicción: {e}")
+        return "Error en la predicción"
 
 # Cargar los modelos
 model_swim = load_model('model_xgb_swim.pkl')
 model_bike = load_model('model_xgb_bike.pkl')
 model_run = load_model('model_rf_run.pkl')
 
-# Configuración de la app
-st.title("Predicción de Tiempos para Ironman 70.3")
-st.write("Introduce los detalles de la carrera para obtener una estimación de tus tiempos en cada segmento.")
+# Configurar la app de Streamlit
+st.title("Predicción de tiempos para Ironman 70.3")
 
-# Entrada de datos por el usuario
-age = st.slider("Edad del atleta", min_value=18, max_value=70, value=30)
-race = st.selectbox(
-    "Selecciona la carrera",
-    ["Ironman 70.3 Barcelona", "Ironman 70.3 Lanzarote", "Ironman 70.3 Dubai"]
-)
+# Cargar valores únicos de la columna 'event location'
+event_locations = load_event_locations('df_merged_small.csv')
 
-# Mapeo de las carreras (ajustar según cómo fueron entrenados los modelos)
-race_mapping = {
-    "Ironman 70.3 Barcelona": 0,
-    "Ironman 70.3 Lanzarote": 1,
-    "Ironman 70.3 Dubai": 2,
-}
-race_encoded = race_mapping[race]
+# Interfaz de usuario
+st.header("Introduce los detalles")
+age = st.slider("Edad", 18, 70, 30)
+event = st.selectbox("Carrera", event_locations)
 
-# Crear DataFrame de entrada para los modelos
-input_data = pd.DataFrame({"race": [race_encoded], "age": [age]})
+if st.button("Predecir tiempos"):
+    st.subheader("Resultados")
+    swim_time = predict_time(model_swim, age, event)
+    bike_time = predict_time(model_bike, age, event)
+    run_time = predict_time(model_run, age, event)
 
-# Botón para predecir
-if st.button("Predecir Tiempos"):
-    try:
-        # Realizar predicciones
-        swim_time = model_swim.predict(input_data)[0]
-        bike_time = model_bike.predict(input_data)[0]
-        run_time = model_run.predict(input_data)[0]
-
-        # Calcular el tiempo total
-        total_time = swim_time + bike_time + run_time
-
-        # Mostrar resultados
-        st.subheader("Resultados de la Predicción:")
-        st.write(f"*Tiempo de Natación:* {swim_time:.2f} minutos")
-        st.write(f"*Tiempo de Ciclismo:* {bike_time:.2f} minutos")
-        st.write(f"*Tiempo de Carrera:* {run_time:.2f} minutos")
-        st.write(f"*Tiempo Total Estimado:* {total_time:.2f} minutos")
-
-    except Exception as e:
-        st.error(f"Error al realizar las predicciones: {e}")
+    st.write(f"*Tiempo natación:* {swim_time} minutos")
+    st.write(f"*Tiempo bicicleta:* {bike_time} minutos")
+    st.write(f"*Tiempo carrera:* {run_time} minutos")
