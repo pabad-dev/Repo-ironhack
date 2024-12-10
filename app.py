@@ -49,9 +49,9 @@ model_run = load_model('model_rf_run.pkl')
 st.title("Predicción de tiempos para Ironman 70.3")
 
 # Cargar valores únicos de las columnas requeridas
-event_locations = load_unique_values('df_merged_small.csv', 'event location')
-genders = load_unique_values('df_merged_small.csv', 'gender')
-countries = load_unique_values('df_merged_small.csv', 'country')
+event_locations = load_unique_values('df_merged_small.csv', 'EventLocation')
+genders = load_unique_values('df_merged_small.csv', 'Gender')
+countries = load_unique_values('df_merged_small.csv', 'Country')
 
 # Interfaz de usuario
 st.header("Introduce los detalles")
