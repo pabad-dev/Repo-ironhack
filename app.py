@@ -16,7 +16,7 @@ def load_model(model_path):
 def load_event_locations(csv_path):
     try:
         df = pd.read_csv(csv_path)
-        return df['event location'].dropna().unique()
+        return df['EventLocation'].dropna().unique()
     except Exception as e:
         st.error(f"Error al cargar el archivo {csv_path}: {e}")
         return []
