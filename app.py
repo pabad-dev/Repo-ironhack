@@ -22,7 +22,7 @@ def load_unique_values(csv_path, column_name):
         return []
 
 # Predicción basada en modelos
-def predict_time(model, age, event, gender, country):
+def predict_time(model, age, event, gender, country, elite):
     if model is None:
         return "Modelo no disponible"
     try:
@@ -31,7 +31,8 @@ def predict_time(model, age, event, gender, country):
             "age": [age], 
             "event": [event],
             "gender": [gender],
-            "country": [country]
+            "country": [country],
+            "elite": [elite]
         })
         # Realizar predicción
         prediction = model.predict(input_data)
@@ -49,9 +50,9 @@ model_run = load_model('model_rf_run.pkl')
 st.title("Predicción de tiempos para Ironman 70.3")
 
 # Cargar valores únicos de las columnas requeridas
-event_locations = load_unique_values('df_merged_small.csv', 'EventLocation')
-genders = load_unique_values('df_merged_small.csv', 'Gender')
-countries = load_unique_values('df_merged_small.csv', 'Country')
+event_locations = load_unique_values('df_merged_small.csv', 'event location')
+genders = load_unique_values('df_merged_small.csv', 'gender')
+countries = load_unique_values('df_merged_small.csv', 'country')
 
 # Interfaz de usuario
 st.header("Introduce los detalles")
@@ -59,12 +60,13 @@ age = st.slider("Edad", 18, 70, 30)
 event = st.selectbox("Carrera", event_locations)
 gender = st.selectbox("Género", genders)
 country = st.selectbox("País", countries)
+elite = st.checkbox("¿Eres atleta élite?")
 
 if st.button("Predecir tiempos"):
     st.subheader("Resultados")
-    swim_time = predict_time(model_swim, age, event, gender, country)
-    bike_time = predict_time(model_bike, age, event, gender, country)
-    run_time = predict_time(model_run, age, event, gender, country)
+    swim_time = predict_time(model_swim, age, event, gender, country, elite)
+    bike_time = predict_time(model_bike, age, event, gender, country, elite)
+    run_time = predict_time(model_run, age, event, gender, country, elite)
 
     st.write(f"*Tiempo natación:* {swim_time} minutos")
     st.write(f"*Tiempo bicicleta:* {bike_time} minutos")
